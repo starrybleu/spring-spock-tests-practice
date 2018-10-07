@@ -1,4 +1,8 @@
+import domain.Post
+import repository.PostRepository
 import spock.lang.Specification
+
+import javax.persistence.EntityNotFoundException
 
 class BlogPostTests extends Specification {
 
@@ -16,10 +20,35 @@ class BlogPostTests extends Specification {
 
     def "find one existing post by id should return the post"() {
 
+        given:
+            int existingPostId = 3
+            PostRepository postRepository = Mock(PostRepository.class)
+            Post post = Mock(Post.class)
+
+            postRepository.findById(existingPostId) >> Optional.of(post)
+            post.getId() >> existingPostId
+
+        when:
+            Optional<Post> retrievedPost = postRepository.findById(existingPostId)
+
+        then:
+            3L == retrievedPost.get().getId()
 
     }
 
-    def "find one unexisting post by id should throw EntityNotFound Exception"() {
+    def "find one nonexistent post by id should throw EntityNotFound Exception"() {
+
+        given:
+        int nonexistentPostId = 4
+        PostRepository postRepository = Mock(PostRepository.class)
+
+        postRepository.findById(nonexistentPostId) >> { throw new EntityNotFoundException() }
+
+        when:
+        postRepository.findById(nonexistentPostId)
+
+        then:
+            thrown(EntityNotFoundException)
 
     }
 
