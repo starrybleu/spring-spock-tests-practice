@@ -6,6 +6,8 @@ import javax.persistence.EntityNotFoundException
 
 class BlogPostTests extends Specification {
 
+    PostRepository postRepository = Mock(PostRepository.class)
+
     def "first test using spock"() {
 
         given:
@@ -22,7 +24,6 @@ class BlogPostTests extends Specification {
 
         given:
             int existingPostId = 3
-            PostRepository postRepository = Mock(PostRepository.class)
             Post post = Mock(Post.class)
 
             postRepository.findById(existingPostId) >> Optional.of(post)
@@ -40,7 +41,7 @@ class BlogPostTests extends Specification {
 
         given:
         int nonexistentPostId = 4
-        PostRepository postRepository = Mock(PostRepository.class)
+
 
         postRepository.findById(nonexistentPostId) >> { throw new EntityNotFoundException() }
 
@@ -54,9 +55,19 @@ class BlogPostTests extends Specification {
 
     def "find posts should return list of posts"() {
 
+        given:
+        def list = [Post.from(1), Post.from(2), Post.from(3)]
+        postRepository.findAll() >> list
+
+        when:
+            List<Post> retrievedPosts = postRepository.findAll()
+
+        then:
+            3 == retrievedPosts.findAll().size()
+
     }
 
-    def "createed a post from dto of legal arguments should be saved"() {
+    def "created a post from dto of legal arguments should be saved"() {
 
     }
 
